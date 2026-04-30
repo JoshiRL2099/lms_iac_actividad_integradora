@@ -1,0 +1,67 @@
+---
+- name: Configuracion del servidor LMS
+  hosts: lms_servers
+  become: yes
+
+  tasks:
+    - name: Actualizar paquetes del sistema
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Instalar dependencias base
+      apt:
+        name:
+          - curl
+          - wget
+          - git
+          - unzip
+          - ca-certificates
+          - gnupg
+          - lsb-release
+        state: present
+
+    - name: Agregar llave GPG de Docker
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Agregar repositorio de Docker
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+        state: present
+
+    - name: Instalar Docker
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+        update_cache: yes
+
+    - name: Iniciar y habilitar Docker
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Agregar usuario ubuntu al grupo docker
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    - name: Instalar Docker Compose
+      get_url:
+        url: https://github.com/docker/compose/releases/download/v2.24.0/docker-compose-linux-x86_64
+        dest: /usr/local/bin/docker-compose
+        mode: '0755'
+
+    - name: Verificar version de Docker
+      command: docker --version
+      register: docker_version
+
+    - name: Mostrar version de Docker
+      debug:
+        msg: "{{ docker_version.stdout }}"
