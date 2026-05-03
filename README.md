@@ -1,74 +1,126 @@
-# 🎓 Learning Management System - Infraestructura como Código
+# Learning Management System (LMS) - Infraestructura como Código
 
-[![Terraform](https://img.shields.io/badge/Terraform-1.0+-623CE4?logo=terraform)](https://www.terraform.io/)
-[![Ansible](https://img.shields.io/badge/Ansible-2.9+-EE0000?logo=ansible)](https://www.ansible.com/)
-[![AWS](https://img.shields.io/badge/AWS-Cloud-FF9900?logo=amazon-aws)](https://aws.amazon.com/)
-[![Vault](https://img.shields.io/badge/HashiCorp-Vault-000000?logo=vault)](https://www.vaultproject.io/)
+## Descripción del proyecto
 
-> Proyecto de Infraestructura como Código (IaC) para un Learning Management System desplegado en AWS utilizando Terraform, Ansible y HashiCorp Vault.
+Este repositorio contiene el bosquejo y la preparación de infraestructura para un Learning Management System (LMS), desarrollado como actividad integradora de Infraestructura como Código y seguridad.
 
-## 🎯 Descripción del Proyecto
+El proyecto utiliza herramientas DevOps para preparar un entorno de desarrollo en AWS. Terraform se usa para aprovisionar la infraestructura, Ansible para configurar el servidor EC2 y HashiCorp Vault para gestionar secretos y credenciales sensibles.
 
-Este proyecto implementa la infraestructura completa para un Learning Management System (LMS) utilizando las mejores prácticas de DevOps:
+## Objetivo
 
-- **Infraestructura como Código (IaC)** con Terraform
-- **Automatización de Configuración** con Ansible
-- **Gestión de Secretos** con HashiCorp Vault
-- **Despliegue en AWS** (EC2, VPC, S3, ALB)
+Implementar una infraestructura base para un LMS aplicando prácticas de DevOps, principalmente:
 
-## 🏗️ Arquitectura
+- Aprovisionamiento de infraestructura mediante Terraform.
+- Gestión de configuración mediante Ansible.
+- Gestión segura de secretos mediante HashiCorp Vault.
+- Versionamiento y trabajo colaborativo mediante GitHub.
 
-```
-Internet → Internet Gateway → Route Table → VPC (10.0.0.0/16)
-                                              │
-                                              └─→ Public Subnet (10.0.1.0/24)
-                                                   ├─ EC2 (t2.micro + Docker)
-                                                   ├─ Security Group (SSH, HTTP)
-                                                   └─ Application Load Balancer
+## Alcance del proyecto
 
-S3 Bucket (archivos estáticos)
-HashiCorp Vault (gestión de secretos)
-```
+El objetivo principal de esta actividad no es desarrollar la aplicación LMS completa, sino preparar la infraestructura necesaria para que posteriormente pueda desplegarse una aplicación educativa.
 
-### Componentes Principales
+La infraestructura está pensada para un entorno de desarrollo y pruebas. En una versión productiva se podrían agregar más instancias EC2, base de datos administrada, HTTPS, monitoreo, políticas de seguridad más estrictas y alta disponibilidad completa.
 
-| Componente | Especificación |
-|------------|----------------|
-| **VPC** | CIDR: 10.0.0.0/16 |
-| **Subred** | 10.0.1.0/24 (us-east-1a) |
-| **EC2** | t2.micro, Ubuntu 22.04 LTS |
-| **ALB** | Application Load Balancer |
-| **S3** | lms-bucket-joshua-548161 |
-| **Security Group** | SSH (22), HTTP (80) |
+## Herramientas utilizadas
 
-## 📁 Estructura del Proyecto
+| Herramienta | Uso dentro del proyecto |
+|---|---|
+| AWS | Proveedor de nube para crear la infraestructura |
+| Terraform | Aprovisionamiento de recursos como VPC, EC2, S3 y ALB |
+| Ansible | Configuración automática del servidor EC2 |
+| HashiCorp Vault | Gestión centralizada de secretos |
+| Docker | Preparación del servidor para aplicaciones en contenedores |
+| GitHub | Control de versiones y colaboración del equipo |
 
-```
+## Requerimientos principales
+
+El LMS requiere una infraestructura que permita:
+
+- Soportar usuarios como estudiantes y profesores.
+- Almacenar archivos multimedia como documentos, imágenes y videos.
+- Permitir escalabilidad mediante balanceo de carga.
+- Mantener credenciales y secretos fuera del código fuente.
+- Automatizar la creación y configuración del entorno.
+
+## Arquitectura general
+
+La infraestructura se organiza en tres capas principales.
+
+### Capa de red
+
+- VPC con rango `10.0.0.0/16`.
+- Subred pública 1: `10.0.1.0/24` en `us-east-1a`.
+- Subred pública 2: `10.0.2.0/24` en `us-east-1b`.
+- Internet Gateway para permitir comunicación con Internet.
+- Route Table pública con salida hacia `0.0.0.0/0` por medio del Internet Gateway.
+
+### Capa de aplicación
+
+- Instancia EC2 tipo `t2.micro`.
+- Sistema operativo Ubuntu 22.04.
+- Docker y Docker Compose instalados con Ansible.
+- Application Load Balancer para distribuir tráfico HTTP/HTTPS.
+
+### Capa de seguridad
+
+- Security Group con reglas para SSH y HTTP.
+- Llave SSH para acceso al servidor EC2.
+- HashiCorp Vault para almacenar secretos como credenciales de AWS, base de datos y tokens de API.
+
+## Recursos principales en AWS
+
+| Recurso | Descripción |
+|---|---|
+| VPC | Red principal del proyecto con CIDR `10.0.0.0/16` |
+| Public Subnet 1 | Subred pública `10.0.1.0/24` en `us-east-1a` |
+| Public Subnet 2 | Subred pública `10.0.2.0/24` en `us-east-1b` |
+| Internet Gateway | Permite comunicación entre la VPC e Internet |
+| Route Table | Define la ruta pública hacia el Internet Gateway |
+| Security Group | Controla el tráfico permitido hacia la instancia EC2 |
+| EC2 | Servidor base del LMS con Ubuntu 22.04 |
+| S3 Bucket | Almacenamiento para archivos multimedia, estáticos o respaldos |
+| Application Load Balancer | Balanceador para distribuir tráfico web |
+
+## Estructura del repositorio
+
+```text
 lms_iac_actividad_integradora/
-├── terraform/          # Infraestructura como código
+├── ansible/
+│   ├── ansible.cfg
+│   ├── inventory.ini
+│   ├── site.yml
+│   └── vault-demo.yml
+│
+├── terraform/
 │   ├── provider.tf
 │   ├── main.tf
 │   ├── variables.tf
-│   └── outputs.tf
-├── ansible/           # Automatización de configuración
-│   ├── ansible.cfg
-│   ├── inventory.ini
-│   └── site.yml
-├── vault/            # Documentación de Vault
+│   ├── outputs.tf
+│   └── vault.tf
+│
+├── vault/
 │   └── vault-usage.md
+│
+├── .gitignore
 └── README.md
 ```
 
-## 🚀 Guía de Despliegue
+## Aprovisionamiento con Terraform
 
-### Paso 1: Clonar el Repositorio
+Terraform se utiliza para definir y crear la infraestructura en AWS a partir de archivos de configuración.
 
-```bash
-git clone https://github.com/JoshiRL2099/lms_iac_actividad_integradora.git
-cd lms_iac_actividad_integradora
-```
+### Recursos aprovisionados
 
-### Paso 2: Desplegar con Terraform
+- VPC.
+- Subredes públicas.
+- Internet Gateway.
+- Route Table.
+- Security Group.
+- Instancia EC2.
+- S3 Bucket.
+- Application Load Balancer.
+
+### Comandos principales
 
 ```bash
 cd terraform
@@ -77,83 +129,131 @@ terraform plan
 terraform apply
 ```
 
-### Paso 3: Configurar con Ansible
+### Nota sobre Vault y Terraform
+
+Se agregó el archivo `terraform/vault.tf` para integrar Terraform con HashiCorp Vault. La finalidad es que Terraform pueda obtener credenciales desde Vault, específicamente desde la ruta `secret/aws`, en lugar de tener claves escritas directamente en el código.
+
+Ejemplo de ejecución con token de Vault:
 
 ```bash
-cd ../ansible
+terraform plan -var="vault_token=TOKEN_GENERADO_POR_VAULT"
+```
+
+## Gestión de configuración con Ansible
+
+Ansible se utiliza para configurar la instancia EC2 después de que Terraform crea la infraestructura.
+
+### Archivos principales
+
+| Archivo | Función |
+|---|---|
+| `ansible/inventory.ini` | Define el servidor EC2 que será configurado |
+| `ansible/ansible.cfg` | Configuración general de Ansible |
+| `ansible/site.yml` | Playbook principal para configurar el servidor |
+| `ansible/vault-demo.yml` | Prueba de concepto para consultar secretos desde Vault |
+
+### Tareas realizadas con Ansible
+
+- Actualización del sistema operativo.
+- Instalación de dependencias base.
+- Instalación de Docker.
+- Instalación de Docker Compose.
+- Configuración de permisos para el usuario `ubuntu`.
+- Verificación de servicios.
+
+### Comandos principales
+
+```bash
+cd ansible
 ansible lms_servers -m ping
 ansible-playbook site.yml
 ```
 
-### Paso 4: Verificar Instalación
+## Seguridad con HashiCorp Vault
 
-```bash
-ssh -i ~/.ssh/lms-key.pem ubuntu@[IP_DEL_EC2]
-docker --version
-docker-compose --version
+Vault se utiliza para centralizar la gestión de secretos del proyecto y evitar que credenciales sensibles queden expuestas en archivos del repositorio.
+
+### Secretos considerados
+
+| Ruta en Vault | Uso |
+|---|---|
+| `secret/aws` | Credenciales para que Terraform pueda autenticarse en AWS |
+| `secret/database` | Datos de conexión para la base de datos del LMS |
+| `secret/api/email` | Token para servicio de correo o notificaciones |
+
+La documentación específica de Vault se encuentra en:
+
+```text
+vault/vault-usage.md
 ```
 
-## 🔐 Seguridad con Vault
+## Flujo general de trabajo DevOps
 
-HashiCorp Vault gestiona secretos de forma centralizada:
+El flujo general del proyecto es el siguiente:
 
-### Secretos Almacenados
-
-| Secreto | Ruta en Vault |
-|---------|---------------|
-| **AWS Credentials** | `secret/aws` |
-| **Database Password** | `secret/database` |
-| **API Tokens** | `secret/api/email` |
-
-### Comandos Básicos
-
-```bash
-# Iniciar Vault (desarrollo)
-vault server -dev
-
-# Guardar secreto
-vault kv put secret/aws access_key="..." secret_key="..."
-
-# Leer secreto
-vault kv get secret/aws
-
-# Listar secretos
-vault kv list secret/
+```text
+1. Terraform crea la infraestructura en AWS.
+2. Ansible configura la instancia EC2 creada por Terraform.
+3. Vault almacena y entrega secretos de forma controlada.
+4. GitHub permite versionar y compartir los archivos del proyecto.
 ```
 
-## 🧩 Componentes del Equipo
+## Integrantes y responsabilidades
 
-### Terraform (Infraestructura)
-**Responsable:** Integrante 1
-- Creación de VPC, subredes, EC2, S3, ALB
-- Configuración de Security Groups
+| Integrante | Responsabilidad principal |
+|---|---|
+| Evelyn Betzabeth Sotelo Pichardo | Gestión de configuración con Ansible |
+| Joshua Reyes León | Aprovisionamiento de infraestructura con Terraform y AWS |
+| Estrella Ximena Zarate Delgado | Seguridad con HashiCorp Vault e integración con Terraform/Ansible |
 
-### Ansible (Configuración)
-**Responsable:** Integrante 2
-- Instalación de Docker y Docker Compose
-- Configuración de servidores
-- Automatización de tareas
+## Buenas prácticas de seguridad
 
-### Vault (Seguridad)
-**Responsable:** Integrante 3
-- Gestión de secretos
-- Documentación del proyecto
-- Evidencias y diagramas
+No se deben subir credenciales reales al repositorio.
 
-## 👥 Equipo
+Antes de hacer commit, se recomienda revisar que no existan tokens, contraseñas, llaves privadas o access keys dentro de los archivos:
 
-- **Integrante 1:** Terraform / AWS
-- **Integrante 2:** Ansible / Configuración
-- **Integrante 3:** Vault / Documentación / Evidencias
+```bash
+grep -R "hvs\|AKIA\|secret_key\|access_key\|password\|token" .
+```
 
-## 📚 Referencias
+Se recomienda mantener en `.gitignore` archivos sensibles o innecesarios:
 
-- [Terraform Documentation](https://www.terraform.io/docs)
-- [Ansible Documentation](https://docs.ansible.com/)
-- [HashiCorp Vault Docs](https://www.vaultproject.io/docs)
-- [AWS Documentation](https://docs.aws.amazon.com/)
+```gitignore
+.DS_Store
+.env
+*.pem
+*.tfstate
+*.tfstate.backup
+.terraform/
+.vault-token
+```
 
----
+## Limitaciones del entorno
 
-**Última actualización:** Mayo 2026  
-**Repositorio:** https://github.com/JoshiRL2099/lms_iac_actividad_integradora
+Esta infraestructura corresponde a un entorno de desarrollo. Por esa razón:
+
+- Se utiliza una sola instancia EC2.
+- El balanceador queda preparado para escalar, pero no representa alta disponibilidad completa si solo existe una instancia.
+- Vault se ejecuta en modo desarrollo para fines académicos.
+- Las reglas de seguridad deben endurecerse antes de un uso en producción.
+- En producción, SSH no debería estar abierto a cualquier IP.
+
+## Mejoras futuras
+
+Para una versión productiva, se recomienda agregar:
+
+- Más instancias EC2 en diferentes zonas de disponibilidad.
+- Base de datos administrada con Amazon RDS.
+- HTTPS con certificado SSL/TLS.
+- Políticas IAM con privilegios mínimos.
+- Monitoreo y alertas.
+- Backups automáticos.
+- Configuración productiva de Vault con auditoría y almacenamiento persistente.
+
+## Referencias oficiales
+
+- Terraform Documentation: https://developer.hashicorp.com/terraform/docs
+- Terraform AWS Provider: https://registry.terraform.io/providers/hashicorp/aws/latest/docs
+- Ansible Documentation: https://docs.ansible.com/
+- HashiCorp Vault Documentation: https://developer.hashicorp.com/vault/docs
+- AWS Documentation: https://docs.aws.amazon.com/
