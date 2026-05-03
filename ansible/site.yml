@@ -1,6 +1,9 @@
 ---
 - name: Configuracion del servidor LMS
   hosts: lms_servers
+  vars:
+    vault_addr: "http://127.0.0.1:8200"
+    vault_token: "{{ lookup('env', 'VAULT_TOKEN') }}"
   become: yes
 
   tasks:
@@ -38,10 +41,9 @@
           - docker-ce-cli
           - containerd.io
         state: present
-        update_cache: yes
 
     - name: Iniciar y habilitar Docker
-      service:
+      systemd:
         name: docker
         state: started
         enabled: yes
@@ -52,16 +54,25 @@
         groups: docker
         append: yes
 
-    - name: Instalar Docker Compose
+    - name: Descargar Docker Compose
       get_url:
         url: https://github.com/docker/compose/releases/download/v2.24.0/docker-compose-linux-x86_64
         dest: /usr/local/bin/docker-compose
         mode: '0755'
 
-    - name: Verificar version de Docker
+    - name: Verificar instalacion de Docker
       command: docker --version
       register: docker_version
 
     - name: Mostrar version de Docker
       debug:
         msg: "{{ docker_version.stdout }}"
+
+    - name: Obtener credenciales desde Vault
+      set_fact:
+        db_user: "{{ lookup('community.hashi_vault.vault_kv2_get', 'secret/database', url=vault_addr, token=vault_token).secret.username }}"
+        db_pass: "{{ lookup('community.hashi_vault.vault_kv2_get', 'secret/database', url=vault_addr, token=vault_token).secret.password }}"
+    
+    - name: Demostrar que obtuvimos credenciales de Vault
+      debug:
+        msg: "Usuario de base de datos obtenido desde Vault: {{ db_user }}"
