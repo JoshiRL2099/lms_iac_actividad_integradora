@@ -40,11 +40,3 @@ vault kv put secret/aws access_key="..." secret_key="..."
 ```bash
 vault kv list secret/
 ```
-
-## Beneficios de Vault en el Proyecto
-
-- ✅ Credenciales centralizadas en un solo lugar seguro
-- ✅ No hay contraseñas en archivos de código
-- ✅ Control de acceso granular
-- ✅ Auditoría de quién accedió a qué secreto
-- ✅ Rotación fácil de credenciales comprometidas
