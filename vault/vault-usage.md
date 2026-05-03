@@ -1,4 +1,4 @@
-# Seguridad con HashiCorp Vault - Integrante 3
+# Seguridad con HashiCorp Vault
 
 ## Descripción
 
