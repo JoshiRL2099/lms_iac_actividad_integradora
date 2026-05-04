@@ -1,0 +1,26 @@
+---
+- name: Demostrar integracion con Vault
+  hosts: localhost
+  connection: local
+  vars:
+    vault_addr: "http://127.0.0.1:8200"
+    vault_token: "{{ lookup('env', 'VAULT_TOKEN') }}"
+
+  tasks:
+    - name: Obtener credenciales de AWS desde Vault
+      set_fact:
+        aws_access: "{{ lookup('community.hashi_vault.vault_kv2_get', 'secret/aws', url=vault_addr, token=vault_token).secret.access_key }}"
+    
+    - name: Obtener credenciales de base de datos desde Vault
+      set_fact:
+        db_user: "{{ lookup('community.hashi_vault.vault_kv2_get', 'secret/database', url=vault_addr, token=vault_token).secret.username }}"
+        db_pass: "{{ lookup('community.hashi_vault.vault_kv2_get', 'secret/database', url=vault_addr, token=vault_token).secret.password }}"
+    
+    - name: Demostrar credenciales AWS obtenidas
+      debug:
+        msg: "Access Key obtenido de Vault: {{ aws_access[:20] }}..."
+    
+    - name: Demostrar credenciales DB obtenidas
+      debug:
+        msg: "Usuario de base de datos obtenido desde Vault: {{ db_user }}"
+
